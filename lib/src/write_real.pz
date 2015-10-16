@@ -1,0 +1,106 @@
+FUNC int write_length(int x)
+{
+    int length = 0;
+    int num = x;
+    if (x < 0)
+        length++;
+    
+    do {
+        length++;
+        num = num / 10;
+    } while (num > 0);
+
+    return length;
+}
+
+PROC print_rounded(REAL remainder, int num_decimals)
+{
+    int m = 1;
+    int j, x;
+    FOR (j, 1 TO num_decimals)
+        m = m * 10;
+
+    int i = ROUND(remainder * m);
+    FOR (j, 1 TO num_decimals) {
+        m = m / 10;
+        x = i / m;
+        WRITE(x);
+        i = i - x * m;
+    }
+}
+
+PROC print_raw(REAL remainder, int num_decimals)
+{
+    int decs = num_decimals - 1;
+    int i;
+    while (decs > 0) {
+        remainder = remainder * 10;
+        i = TRUNC(remainder);
+        remainder = remainder - i;
+        WRITE(i);
+        decs--;
+    }
+    i = ROUND(remainder * 10);
+    WRITE(i);
+}
+
+PROC print_scientific(REAL num, int space, int num_decimals)
+{
+    int exponent = 0;
+    REAL x = num;
+    while (x >= 10) {
+        x = x / 10;
+        exponent++;
+    }
+    int exp_length = write_length(exponent);
+    int num_spaces = space - 2 - num_decimals - 1 - exp_length;
+    while (num_spaces > 0) {
+        WRITE(' ');
+        num_spaces--;
+    }
+
+    int i = TRUNC(x);
+    WRITE(i, '.');
+    x = x - i;
+    if (num_decimals < 10)
+        print_rounded(x, num_decimals);
+    else
+        print_raw(x, num_decimals);
+    WRITE('e', exponent);
+}
+
+PROC WRITE_REAL(REAL x, int space, int num_decimals)
+{
+    int minus = 0;
+    if (x < 0) {
+        x = -x;
+        minus = 1;
+        WRITE('-');
+    }
+
+    if (x > 2147438647) {
+        print_scientific(x, space - minus, num_decimals);
+        return;
+    }
+
+    int i = TRUNC(x);
+    int length = write_length(i);
+    REAL remainder = x - i;
+
+    int num_spaces = space - minus - length - 1 - num_decimals;
+    while (num_spaces > 0) {
+        WRITE(' ');
+        num_spaces--;
+    }
+    
+    WRITE(i, '.');
+    if (num_decimals < 10)
+        print_rounded(remainder, num_decimals);
+    else
+        print_raw(remainder, num_decimals);
+}
+
+PROGRAM foo()
+{
+}
+

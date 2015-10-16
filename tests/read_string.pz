@@ -1,0 +1,6 @@
+PROGRAM foo()
+{
+    char x[6];
+    READ_STRING(6, x);
+    WRITE(x);
+}
